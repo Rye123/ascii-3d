@@ -77,7 +77,7 @@ class Scene:
         print(screen)
 
 if __name__ == "__main__":
-    cam = Camera(Vertex(0, 0, 0))
+    cam = Camera(Vertex(0, 0, -5))
     scene = Scene()
 
     tri = Geometry(

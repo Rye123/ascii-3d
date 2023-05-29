@@ -11,6 +11,21 @@ class Vertex:
         self.v = np.array([x, y, z])
     
     @staticmethod
+    def rotate(vtx: 'Vertex', yaw: float=0, pitch: float=0, roll: float=0) -> 'Vertex':
+        """
+        Returns the given coordinate, rotated by:
+        - `yaw`: Rotation about the z-axis
+        - `pitch`: Rotation about the y-axis
+        - `roll`: Rotation about the x-axis
+        """
+        R = np.array([
+            [np.cos(pitch)*np.cos(roll), (np.sin(yaw)*np.sin(pitch)*np.cos(roll)) - (np.cos(yaw)*np.sin(roll)), (np.cos(yaw)*np.sin(pitch)*np.cos(roll)) + (np.sin(yaw)*np.sin(roll))],
+            [np.cos(pitch)*np.sin(roll), (np.sin(yaw)*np.sin(pitch)*np.sin(roll)) - (np.cos(yaw)*np.cos(roll)), (np.cos(yaw)*np.sin(pitch)*np.sin(roll)) + (np.sin(yaw)*np.cos(roll))],
+            [-np.sin(pitch), np.sin(yaw)*np.cos(roll), np.cos(yaw)*np.cos(pitch)]
+        ])
+        return Vertex.from_ndarray(np.matmul(R, vtx.v))
+    
+    @staticmethod
     def lerp(v0: 'Vertex', v1: 'Vertex', t: float) -> 'Vertex':
         """
         Linearly interpolate between `v0` and `v1`.
@@ -55,5 +70,9 @@ class Geometry:
                     lerp_geom.append(Vertex.lerp(v0, v1, t))
                     t += interval
         return lerp_geom
+
+    def rotate(self, yaw: float, pitch: float, roll: float):
+        for i in range(len(self.vertices)):
+            self.vertices[i] = Vertex.rotate(self.vertices[i], yaw, pitch, roll)
 
         
