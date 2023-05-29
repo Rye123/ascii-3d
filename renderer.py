@@ -2,6 +2,9 @@ import numpy as np
 from typing import List
 from math import floor, ceil
 from geometry import Vertex, Geometry
+from time import sleep
+from os import system
+from shutil import get_terminal_size
 
 class Camera:
     DOF = 20 # Depth of Field (i.e. viewer's distance from the screen)
@@ -15,6 +18,9 @@ class Camera:
 
     def __init__(self, pos: Vertex):
         self.pos = pos
+        t_size = get_terminal_size((20, 10))
+        self.WIDTH = t_size[0]
+        self.HEIGHT = t_size[1]
     
     def getIllum(self, depth: float) -> str:
         """
@@ -44,9 +50,14 @@ class Camera:
 class Scene:
     def __init__(self):
         self.geometry:List[Geometry] = []
+        from os import name
+        self._clear_cmd = "cls" if name == "nt" else "clear"
     
     def add(self, geom:Geometry):
         self.geometry.append(geom)
+
+    def clear(self):
+        system(self._clear_cmd)
     
     def render(self, camera: Camera):
         W = camera.WIDTH
@@ -88,4 +99,16 @@ if __name__ == "__main__":
         ]
     )
     scene.add(tri)
-    scene.render(cam)
+
+    try:
+        while True:
+            scene.clear()
+            scene.render(cam)
+            tri.rotate(0, 0.25, 0)
+            sleep(0.1)
+    except KeyboardInterrupt:
+        print("Exiting due to interrupt.")
+    except Exception as e:
+        print("Exiting due to exception.")
+        print(e)
+    
