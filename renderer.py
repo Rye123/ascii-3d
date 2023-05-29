@@ -7,10 +7,10 @@ from os import system
 from shutil import get_terminal_size
 
 class Camera:
-    DOF = 20 # Depth of Field (i.e. viewer's distance from the screen)
+    DOF = 25 # Depth of Field (i.e. viewer's distance from the screen)
     WIDTH = 20
     HEIGHT = 10
-    MAX_DEPTH = 100
+    MAX_DEPTH = 1000
     OUT_OF_SCREEN_VTX = Vertex(0, 0, MAX_DEPTH+1)
 
     # Determines how 'bright' a point is -- taken from https://www.a1k0n.net/2011/07/20/donut-math.html
@@ -93,9 +93,9 @@ if __name__ == "__main__":
 
     tri = Geometry(
         [
-            Vertex(-10,   0,   3),
-            Vertex( 10, -10,  20),
-            Vertex( 10,  10,  20)
+            Vertex(-20,   0,  70),
+            Vertex( 20, -20,  100),
+            Vertex( 20,  20,  100)
         ]
     )
     scene.add(tri)

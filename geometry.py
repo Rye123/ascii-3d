@@ -1,5 +1,5 @@
 import numpy as np
-from typing import List
+from typing import List, Union
 
 class Vertex:
     """
@@ -11,19 +11,34 @@ class Vertex:
         self.v = np.array([x, y, z])
     
     @staticmethod
-    def rotate(vtx: 'Vertex', yaw: float=0, pitch: float=0, roll: float=0) -> 'Vertex':
+    def rotate(vtx: 'Vertex', alpha: float=0, beta: float=0, gamma: float=0) -> 'Vertex':
         """
         Returns the given coordinate, rotated by:
-        - `yaw`: Rotation about the z-axis
-        - `pitch`: Rotation about the y-axis
-        - `roll`: Rotation about the x-axis
+        - `alpha`: Rotation about the x-axis
+        - `beta`: Rotation about the y-axis
+        - `gamma`: Rotation about the z-axis
         """
         R = np.array([
-            [np.cos(pitch)*np.cos(roll), (np.sin(yaw)*np.sin(pitch)*np.cos(roll)) - (np.cos(yaw)*np.sin(roll)), (np.cos(yaw)*np.sin(pitch)*np.cos(roll)) + (np.sin(yaw)*np.sin(roll))],
-            [np.cos(pitch)*np.sin(roll), (np.sin(yaw)*np.sin(pitch)*np.sin(roll)) - (np.cos(yaw)*np.cos(roll)), (np.cos(yaw)*np.sin(pitch)*np.sin(roll)) + (np.sin(yaw)*np.cos(roll))],
-            [-np.sin(pitch), np.sin(yaw)*np.cos(roll), np.cos(yaw)*np.cos(pitch)]
+            [np.cos(beta)*np.cos(gamma), (np.sin(alpha)*np.sin(beta)*np.cos(gamma)) - (np.cos(alpha)*np.sin(gamma)), (np.cos(alpha)*np.sin(beta)*np.cos(gamma)) + (np.sin(alpha)*np.sin(gamma))],
+            [np.cos(beta)*np.sin(gamma), (np.sin(alpha)*np.sin(beta)*np.sin(gamma)) + (np.cos(alpha)*np.cos(gamma)), (np.cos(alpha)*np.sin(beta)*np.sin(gamma)) - (np.sin(alpha)*np.cos(gamma))],
+            [-np.sin(beta), np.sin(alpha)*np.cos(beta), np.cos(alpha)*np.cos(beta)]
         ])
         return Vertex.from_ndarray(np.matmul(R, vtx.v))
+    
+    @staticmethod
+    def rotate_about_origin(vtx: 'Vertex', origin: 'Vertex', alpha: float=0, beta: float=0, gamma: float=0) -> 'Vertex':
+        """
+        Returns the given coordinate, rotated by:
+        - `alpha`: Rotation about the x-axis
+        - `beta`: Rotation about the y-axis
+        - `gamma`: Rotation about the z-axis
+        """
+        R = np.array([
+            [np.cos(beta)*np.cos(gamma), (np.sin(alpha)*np.sin(beta)*np.cos(gamma)) - (np.cos(alpha)*np.sin(gamma)), (np.cos(alpha)*np.sin(beta)*np.cos(gamma)) + (np.sin(alpha)*np.sin(gamma))],
+            [np.cos(beta)*np.sin(gamma), (np.sin(alpha)*np.sin(beta)*np.sin(gamma)) + (np.cos(alpha)*np.cos(gamma)), (np.cos(alpha)*np.sin(beta)*np.sin(gamma)) - (np.sin(alpha)*np.cos(gamma))],
+            [-np.sin(beta), np.sin(alpha)*np.cos(beta), np.cos(alpha)*np.cos(beta)]
+        ])
+        return Vertex.from_ndarray(np.matmul(R, vtx.v - origin.v) + origin.v)
     
     @staticmethod
     def lerp(v0: 'Vertex', v1: 'Vertex', t: float) -> 'Vertex':
@@ -43,10 +58,13 @@ class Geometry:
     """
     An enclosed set of two or more vertices in 3D space.
     """
-    def __init__(self, vertices: List[Vertex]):
+    def __init__(self, vertices: List[Vertex], origin: Union[Vertex, None]=None):
         if len(vertices) < 2:
             raise ValueError("Expected 2 or more vertices")
         self.vertices = vertices
+        if origin == None:
+            origin = self.vertices[0]
+        self.origin = origin
 
     def lerp(self, interval: float=0.01) -> List[Vertex]:
         """
@@ -71,8 +89,11 @@ class Geometry:
                     t += interval
         return lerp_geom
 
-    def rotate(self, yaw: float, pitch: float, roll: float):
+    def rotate(self, alpha: float, beta: float, gamma: float):
+        """
+        Rotates the geometry about its origin.
+        """
         for i in range(len(self.vertices)):
-            self.vertices[i] = Vertex.rotate(self.vertices[i], yaw, pitch, roll)
+            self.vertices[i] = Vertex.rotate_about_origin(self.vertices[i], self.origin, alpha, beta, gamma)
 
         
