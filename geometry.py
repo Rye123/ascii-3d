@@ -49,6 +49,21 @@ class Vertex:
         return Vertex.from_ndarray((v0.v * t) + (v1.v * (1 - t)))
     
     @staticmethod
+    def lerp_gen(vertices: List['Vertex'], coeffs: List[float]) -> 'Vertex':
+        """
+        
+        """
+        if not np.isclose(sum(coeffs), 1):
+            print(coeffs)
+            raise ValueError("Cannot lerp_gen when sum of coefficients is not 1.")
+        if len(coeffs) != len(vertices):
+            raise ValueError("Coeff length does not match vertices length.")
+        new_v = np.array([0.0, 0.0, 0.0])
+        for vtx, coeff in zip(vertices, coeffs):
+            new_v += vtx.v * coeff
+        return Vertex.from_ndarray(new_v)
+    
+    @staticmethod
     def from_ndarray(v: np.ndarray) -> 'Vertex':
         if len(v) != 3:
             raise ValueError("Expected a 3D numpy array")
@@ -95,30 +110,25 @@ class Geometry:
         if interval < 0 or interval > 1:
             raise ValueError("Invalid interval (Expected 0 <= interval <= 1).")
         lerp_geom = []
-        
+        triples = []
         for i in range(len(self.vertices)):
-            vs = self.vertices[i] # the static point
-
-            edge = []  # edge from j to k
-            pairs = [] # pairs processed in j-k
             for j in range(len(self.vertices)):
                 for k in range(len(self.vertices)):
-                    if j == k or (j, k) in pairs or (k, j) in pairs:
+                    if (i, j, k) in triples or (i, k, j) in triples or (j, i, k) in triples or (j, k, i) in triples or (k, i, j) in triples or (k, j, i) in triples:
                         continue
-                    pairs.append((j, k))
-                    v0 = self.vertices[j]
-                    v1 = self.vertices[k]
-                    t = 0
-                    while t <= 1:
-                        edge.append(Vertex.lerp(v0, v1, t))
-                        t += interval
-            
-            # Generate edge from vs to every point in edge
-            for vtx in edge:
-                t = 0
-                while t <= 1:
-                    lerp_geom.append(Vertex.lerp(vs, vtx, t))
-                    t += interval
+                    triples.append((i, j, k))
+
+                    vertices = [self.vertices[i], self.vertices[j], self.vertices[k]]
+                    
+                    coeff0 = 0.0
+                    while coeff0 <= 1.0:
+                        coeff1 = 0.0
+                        while coeff1 <= (1.0 - coeff0):
+                            coeff2 = 1.0 - coeff0 - coeff1
+                            coeffs = [coeff0, coeff1, coeff2]
+                            lerp_geom.append(Vertex.lerp_gen(vertices, coeffs))
+                            coeff1 += interval
+                        coeff0 += interval
                 
         return lerp_geom
 

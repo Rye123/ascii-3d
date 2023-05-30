@@ -5,6 +5,7 @@ from geometry import Vertex, Geometry
 from time import sleep
 from os import system
 from shutil import get_terminal_size
+from traceback import print_exc
 
 class Camera:
     DOF = 25 # Depth of Field (i.e. viewer's distance from the screen)
@@ -98,17 +99,25 @@ if __name__ == "__main__":
             Vertex( 20,  20,  100)
         ]
     )
-    scene.add(tri)
+    quad = Geometry(
+        [
+            Vertex(-20, -20,  50),
+            Vertex(-20,  20,  50),
+            Vertex( 20, -20,  50),
+            Vertex( 20,  20,  50)
+        ]
+    )
+    scene.add(quad)
 
     try:
         while True:
             scene.clear()
             scene.render(cam)
-            tri.rotate(0, 0.25, 0)
-            sleep(0.1)
+            quad.rotate(0, 0.25, 0)
+            sleep(0.05)
     except KeyboardInterrupt:
         print("Exiting due to interrupt.")
     except Exception as e:
         print("Exiting due to exception.")
-        print(e)
+        print_exc()
     
