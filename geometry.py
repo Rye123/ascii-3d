@@ -66,11 +66,9 @@ class Geometry:
             origin = self.vertices[0]
         self.origin = origin
 
-    def lerp(self, interval: float=0.01) -> List[Vertex]:
+    def generate_edges(self, interval: float=0.01) -> List[Vertex]:
         """
-        Returns the geometry, interpolated by `interval`.
-
-        This generates an edge between every two vertices in the geometry.
+        Returns the geometry as an edge between every two vertices in the geometry, interpolated by `interval`.
         """
         if interval < 0 or interval > 1:
             raise ValueError("Invalid interval (Expected 0 <= interval <= 1).")
@@ -88,6 +86,42 @@ class Geometry:
                     lerp_geom.append(Vertex.lerp(v0, v1, t))
                     t += interval
         return lerp_geom
+    
+    def generate_surfaces(self, interval: float=0.1) -> List[Vertex]:
+        """
+        Returns the geometry as a surface between every three vertices in the geometry, interpolated by `interval`.
+        TODO: VERY INEFFICIENT
+        """
+        if interval < 0 or interval > 1:
+            raise ValueError("Invalid interval (Expected 0 <= interval <= 1).")
+        lerp_geom = []
+        
+        for i in range(len(self.vertices)):
+            vs = self.vertices[i] # the static point
+
+            edge = []  # edge from j to k
+            pairs = [] # pairs processed in j-k
+            for j in range(len(self.vertices)):
+                for k in range(len(self.vertices)):
+                    if j == k or (j, k) in pairs or (k, j) in pairs:
+                        continue
+                    pairs.append((j, k))
+                    v0 = self.vertices[j]
+                    v1 = self.vertices[k]
+                    t = 0
+                    while t <= 1:
+                        edge.append(Vertex.lerp(v0, v1, t))
+                        t += interval
+            
+            # Generate edge from vs to every point in edge
+            for vtx in edge:
+                t = 0
+                while t <= 1:
+                    lerp_geom.append(Vertex.lerp(vs, vtx, t))
+                    t += interval
+                
+        return lerp_geom
+
 
     def rotate(self, alpha: float, beta: float, gamma: float):
         """

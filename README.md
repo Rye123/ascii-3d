@@ -1,5 +1,6 @@
 # ascii-3d
-![Demo](docs/ascii_3d_demo.gif)
+![Demo with Edges](docs/ascii_3d_demo_edge.gif)
+![Demo with Surfaces](docs/ascii_3d_demo_surf.gif)
 
 A very very very simple 3D renderer with ASCII. As of now, it simply:
 1. Defines a triangle with three vertices

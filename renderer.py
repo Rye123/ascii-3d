@@ -64,7 +64,7 @@ class Scene:
         H = camera.HEIGHT
         depth_buffer = [[camera.MAX_DEPTH for x in range(W)] for y in range(H)]
         for geom in self.geometry:
-            coords = geom.lerp()
+            coords = geom.generate_surfaces()
             for coord in coords:
                 coord = camera.project(coord)
                 x = floor(coord.v[0] + (W // 2))
