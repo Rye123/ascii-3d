@@ -6,6 +6,7 @@ from time import sleep
 from os import system
 from shutil import get_terminal_size
 from traceback import print_exc
+from threading import Event
 
 class Camera:
     DOF = 25 # Depth of Field (i.e. viewer's distance from the screen)
@@ -51,6 +52,8 @@ class Camera:
 class Scene:
     def __init__(self):
         self.geometry:List[Geometry] = []
+        self.screen_buffer:str = ""
+        self.screen_ready = Event()
         from os import name
         self._clear_cmd = "cls" if name == "nt" else "clear"
     
@@ -61,6 +64,7 @@ class Scene:
         system(self._clear_cmd)
     
     def render(self, camera: Camera):
+        self.screen_ready.clear()
         W = camera.WIDTH
         H = camera.HEIGHT
         depth_buffer = [[camera.MAX_DEPTH for x in range(W)] for y in range(H)]
@@ -86,7 +90,14 @@ class Scene:
             for x in range(W):
                 line += camera.getIllum(depth_buffer[y][x])
             screen += line + "\n"
-        print(screen)
+        self.screen = screen
+        self.screen_ready.set()
+    
+    def display(self):
+        # Replace screen only if ready
+        self.screen_ready.wait()
+        self.clear()
+        print(self.screen)
 
 if __name__ == "__main__":
     cam = Camera(Vertex(0, 0, -5))
@@ -111,8 +122,8 @@ if __name__ == "__main__":
 
     try:
         while True:
-            scene.clear()
             scene.render(cam)
+            scene.display()
             quad.rotate(0, 0.25, 0)
             sleep(0.05)
     except KeyboardInterrupt:
