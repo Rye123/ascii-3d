@@ -124,18 +124,18 @@ def main(window):
 
     tri = Geometry(
         [
-            Vertex(-20,   0,  90),
-            Vertex( 20, -20,  100),
-            Vertex( 20,  20,  100)
+            Vertex(-40,   0,  90),
+            Vertex(-10, -20,  100),
+            Vertex(-10,  20,  100)
         ],
         color=2
     )
     quad = Geometry(
         [
-            Vertex(-20, -20,  50),
-            Vertex(-20,  20,  50),
-            Vertex( 20, -20,  50),
-            Vertex( 20,  20,  50)
+            Vertex( 10, -20,  50),
+            Vertex( 10,  20,  50),
+            Vertex( 40, -20,  50),
+            Vertex( 40,  20,  50)
         ],
         color=3
     )
@@ -146,8 +146,8 @@ def main(window):
     try:
         while True:
             scene.render(cam)
-            tri.rotate(0.25, 0, 0)
-            quad.rotate(0, 0.25, 0)
+            tri.rotate(0, 0.25, 0)
+            quad.rotate(0, -0.25, 0)
             sleep(interval)
     except KeyboardInterrupt:
         logger.info("Exiting due to interrupt.")
