@@ -7,8 +7,9 @@ class Vertex:
     
     The vector can be accessed with `Vertex.v`.
     """
-    def __init__(self, x: float, y: float, z: float):
+    def __init__(self, x: float, y: float, z: float, color: int = 0):
         self.v = np.array([x, y, z])
+        self.color = color
     
     @staticmethod
     def rotate(vtx: 'Vertex', alpha: float=0, beta: float=0, gamma: float=0) -> 'Vertex':
@@ -86,13 +87,14 @@ class Geometry:
     """
     An enclosed set of two or more vertices in 3D space.
     """
-    def __init__(self, vertices: List[Vertex], origin: Union[Vertex, None]=None):
+    def __init__(self, vertices: List[Vertex], origin: Union[Vertex, None]=None, color: int=0):
         if len(vertices) < 2:
             raise ValueError("Expected 2 or more vertices")
         self.vertices = vertices
         if origin == None:
             origin = self.vertices[0]
         self.origin = origin
+        self.color = color
 
     def generate_edges(self, interval: float=0.01) -> List[Vertex]:
         """
@@ -111,7 +113,9 @@ class Geometry:
                 v1 = self.vertices[j]
                 t = 0
                 while t <= 1:
-                    lerp_geom.append(Vertex.lerp(v0, v1, t))
+                    v = Vertex.lerp(v0, v1, t)
+                    v.color = self.color
+                    lerp_geom.append(v)
                     t += interval
         return lerp_geom
     
@@ -139,7 +143,9 @@ class Geometry:
                         while coeff1 <= (1.0 - coeff0):
                             coeff2 = 1.0 - coeff0 - coeff1
                             coeffs = [coeff0, coeff1, coeff2]
-                            lerp_geom.append(Vertex.lerp_gen(vertices, coeffs))
+                            v = Vertex.lerp_gen(vertices, coeffs)
+                            v.color = self.color
+                            lerp_geom.append(v)
                             coeff1 += interval
                         coeff0 += interval
                 
