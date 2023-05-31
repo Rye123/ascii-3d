@@ -19,6 +19,8 @@ defHandler.setLevel(logging.DEBUG)
 
 logger.addHandler(defHandler)
 
+REFRESH_RATE = 40
+
 class Camera:
     DOF = 25 # Depth of Field (i.e. viewer's distance from the screen)
     MAX_DEPTH = 1000
@@ -115,13 +117,14 @@ class Scene:
         self.window.refresh()
 
 def main(window):
+    interval = 1/REFRESH_RATE
     curses.curs_set(0)
     cam = Camera(Vertex(0, 0, -5))
     scene = Scene(window)
 
     tri = Geometry(
         [
-            Vertex(-20,   0,  70),
+            Vertex(-20,   0,  90),
             Vertex( 20, -20,  100),
             Vertex( 20,  20,  100)
         ],
@@ -143,8 +146,9 @@ def main(window):
     try:
         while True:
             scene.render(cam)
+            tri.rotate(0.25, 0, 0)
             quad.rotate(0, 0.25, 0)
-            sleep(0.05)
+            sleep(interval)
     except KeyboardInterrupt:
         logger.info("Exiting due to interrupt.")
     except Exception as e:
