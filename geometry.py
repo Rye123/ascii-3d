@@ -120,7 +120,7 @@ class Geometry:
                     t += interval
         return lerp_geom
     
-    def generate_surfaces(self, interval: float=0.05) -> List[Vertex]:
+    def generate_surfaces(self, interval: float=0.09) -> List[Vertex]:
         """
         Returns the geometry as a surface between every three vertices in the geometry, interpolated by `interval`.
         TODO: VERY INEFFICIENT
@@ -144,8 +144,8 @@ class Geometry:
                     v.color = self.color
                     lerp_geom.append(v)
                     coeff1 += interval
-                    coeff0 += interval
-                
+                coeff0 += interval
+            
         return lerp_geom
 
 
