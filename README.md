@@ -1,12 +1,13 @@
 # ascii-3d
-![Demo with Edges](docs/ascii_3d_demo_edge.gif)
-![Demo with Surfaces](docs/ascii_3d_demo_surf.gif)
+![Demo](docs/ascii_3d_demo_color.gif)
 
-A very very very simple 3D renderer with ASCII. As of now, it simply:
-1. Defines a triangle with three vertices
-2. Conducts interpolation on the vertices to get intermediate points to be drawn.
-3. Draws the triangle on screen through projection.
-4. Rotates the triangle along a given origin, and re-computes (2.) and (3.).
+A very very very simple 3D renderer with ASCII. This only works on systems that support the Python [curses library](https://docs.python.org/3/library/curses.html#module-curses) (i.e. Unix systems).
+
+As of now, it simply:
+1. Defines a triangle and a quad.
+2. Conducts interpolation on the vertices of both objects, to get intermediate vertices to be drawn.
+3. Projects all vertices onto the screen (i.e. drawing them to the screen)
+4. Rotates both the triangle and quad along their origins, and re-computes (2.), (3.).
 
 ## Usage
 ```bash
@@ -19,6 +20,6 @@ This project was inspired by the work done in [Donut Math](https://www.a1k0n.net
 - Further, the math to compute rotations was taken from [this Wikipedia article](https://en.wikipedia.org/wiki/Rotation_matrix#General_rotations).
 
 ## TO-DO
-- Comparing the implementation with the one in Donut Math, several optimisations could be made (e.g. precomputing sines and cosines).
 - Rendering of larger geometric objects could be potentially done.
-- Rotation is still a little buggy.
+- Optimisation of surface rendering of intermediate points (should draw more for closer objects, less for further objects)
+- Use of `itertools` for drawing of edges
