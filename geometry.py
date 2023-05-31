@@ -1,4 +1,5 @@
 import numpy as np
+import itertools
 from typing import List, Union
 
 class Vertex:
@@ -7,8 +8,9 @@ class Vertex:
     
     The vector can be accessed with `Vertex.v`.
     """
-    def __init__(self, x: float, y: float, z: float):
+    def __init__(self, x: float, y: float, z: float, color: int = 0):
         self.v = np.array([x, y, z])
+        self.color = color
     
     @staticmethod
     def rotate(vtx: 'Vertex', alpha: float=0, beta: float=0, gamma: float=0) -> 'Vertex':
@@ -86,13 +88,14 @@ class Geometry:
     """
     An enclosed set of two or more vertices in 3D space.
     """
-    def __init__(self, vertices: List[Vertex], origin: Union[Vertex, None]=None):
+    def __init__(self, vertices: List[Vertex], origin: Union[Vertex, None]=None, color: int=0):
         if len(vertices) < 2:
             raise ValueError("Expected 2 or more vertices")
         self.vertices = vertices
         if origin == None:
             origin = self.vertices[0]
         self.origin = origin
+        self.color = color
 
     def generate_edges(self, interval: float=0.01) -> List[Vertex]:
         """
@@ -111,11 +114,13 @@ class Geometry:
                 v1 = self.vertices[j]
                 t = 0
                 while t <= 1:
-                    lerp_geom.append(Vertex.lerp(v0, v1, t))
+                    v = Vertex.lerp(v0, v1, t)
+                    v.color = self.color
+                    lerp_geom.append(v)
                     t += interval
         return lerp_geom
     
-    def generate_surfaces(self, interval: float=0.1) -> List[Vertex]:
+    def generate_surfaces(self, interval: float=0.05) -> List[Vertex]:
         """
         Returns the geometry as a surface between every three vertices in the geometry, interpolated by `interval`.
         TODO: VERY INEFFICIENT
@@ -123,25 +128,23 @@ class Geometry:
         if interval < 0 or interval > 1:
             raise ValueError("Invalid interval (Expected 0 <= interval <= 1).")
         lerp_geom = []
-        triples = []
-        for i in range(len(self.vertices)):
-            for j in range(len(self.vertices)):
-                for k in range(len(self.vertices)):
-                    if (i, j, k) in triples or (i, k, j) in triples or (j, i, k) in triples or (j, k, i) in triples or (k, i, j) in triples or (k, j, i) in triples:
-                        continue
-                    triples.append((i, j, k))
-
-                    vertices = [self.vertices[i], self.vertices[j], self.vertices[k]]
-                    
-                    coeff0 = 0.0
-                    while coeff0 <= 1.0:
-                        coeff1 = 0.0
-                        while coeff1 <= (1.0 - coeff0):
-                            coeff2 = 1.0 - coeff0 - coeff1
-                            coeffs = [coeff0, coeff1, coeff2]
-                            lerp_geom.append(Vertex.lerp_gen(vertices, coeffs))
-                            coeff1 += interval
-                        coeff0 += interval
+        v_ids = list(range(len(self.vertices)))
+        for i, j, k in itertools.combinations_with_replacement(v_ids, 3):
+            if i == j and i == k:
+                continue
+            vertices = [self.vertices[i], self.vertices[j], self.vertices[k]]
+            
+            coeff0 = 0.0
+            while coeff0 <= 1.0:
+                coeff1 = 0.0
+                while coeff1 <= (1.0 - coeff0):
+                    coeff2 = 1.0 - coeff0 - coeff1
+                    coeffs = [coeff0, coeff1, coeff2]
+                    v = Vertex.lerp_gen(vertices, coeffs)
+                    v.color = self.color
+                    lerp_geom.append(v)
+                    coeff1 += interval
+                    coeff0 += interval
                 
         return lerp_geom
 
