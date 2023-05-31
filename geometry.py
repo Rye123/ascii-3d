@@ -18,10 +18,17 @@ class Vertex:
         - `beta`: Rotation about the y-axis
         - `gamma`: Rotation about the z-axis
         """
+        # cached variables
+        cA = np.cos(alpha)
+        sA = np.sin(alpha)
+        cB = np.cos(beta)
+        sB = np.sin(beta)
+        cG = np.cos(gamma)
+        sG = np.sin(gamma)
         R = np.array([
-            [np.cos(beta)*np.cos(gamma), (np.sin(alpha)*np.sin(beta)*np.cos(gamma)) - (np.cos(alpha)*np.sin(gamma)), (np.cos(alpha)*np.sin(beta)*np.cos(gamma)) + (np.sin(alpha)*np.sin(gamma))],
-            [np.cos(beta)*np.sin(gamma), (np.sin(alpha)*np.sin(beta)*np.sin(gamma)) + (np.cos(alpha)*np.cos(gamma)), (np.cos(alpha)*np.sin(beta)*np.sin(gamma)) - (np.sin(alpha)*np.cos(gamma))],
-            [-np.sin(beta), np.sin(alpha)*np.cos(beta), np.cos(alpha)*np.cos(beta)]
+            [cB*cG, (sA*sB*cG) - (cA*sG), (cA*sB*cG) + (sA*sG)],
+            [cB*sG, (sA*sB*sG) + (cA*cG), (cA*sB*sG) - (sA*cG)],
+            [-sB, sA*cB, cA*cB]
         ])
         return Vertex.from_ndarray(np.matmul(R, vtx.v))
     
@@ -33,10 +40,16 @@ class Vertex:
         - `beta`: Rotation about the y-axis
         - `gamma`: Rotation about the z-axis
         """
+        cA = np.cos(alpha)
+        sA = np.sin(alpha)
+        cB = np.cos(beta)
+        sB = np.sin(beta)
+        cG = np.cos(gamma)
+        sG = np.sin(gamma)
         R = np.array([
-            [np.cos(beta)*np.cos(gamma), (np.sin(alpha)*np.sin(beta)*np.cos(gamma)) - (np.cos(alpha)*np.sin(gamma)), (np.cos(alpha)*np.sin(beta)*np.cos(gamma)) + (np.sin(alpha)*np.sin(gamma))],
-            [np.cos(beta)*np.sin(gamma), (np.sin(alpha)*np.sin(beta)*np.sin(gamma)) + (np.cos(alpha)*np.cos(gamma)), (np.cos(alpha)*np.sin(beta)*np.sin(gamma)) - (np.sin(alpha)*np.cos(gamma))],
-            [-np.sin(beta), np.sin(alpha)*np.cos(beta), np.cos(alpha)*np.cos(beta)]
+            [cB*cG, (sA*sB*cG) - (cA*sG), (cA*sB*cG) + (sA*sG)],
+            [cB*sG, (sA*sB*sG) + (cA*cG), (cA*sB*sG) - (sA*cG)],
+            [-sB, sA*cB, cA*cB]
         ])
         return Vertex.from_ndarray(np.matmul(R, vtx.v - origin.v) + origin.v)
     
